@@ -98,7 +98,7 @@ def glove2dict(glove_filename):
 
 print("Training GloVe")
 
-original_embeddings = glove2dict("glove.6B.200d.txt")
+original_embeddings = glove2dict("glove.6B/glove.6B.200d.txt")
 vocab_array = vocab.keys()
 mittens_model = Mittens(n=200, max_iter=5000)
 new_embeddings = mittens_model.fit(co_matrix, vocab = top_5k.keys(), initial_embedding_dict = original_embeddings)
