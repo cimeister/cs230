@@ -9,39 +9,44 @@ import operator
 
 print("Reading in data")
 
-data = pd.read_json('wine-reviews/winemag-data-130k-v2.json')
+data = pd.read_json('train.json')
 descriptions = data['description']
 
-corpus = ""
+print("Parsing each review")
+
+reviews = []
 for d in descriptions:
-	corpus += d
+	words = d.split()
+	words.append("</s>")
+	words.insert(0, "<s>")
+	reviews.append(words)
 
-tokenizer = nltk.data.load('tokenizers/punkt/english.pickle')
-raw_sentences = tokenizer.tokenize(corpus)
+#tokenizer = nltk.data.load('tokenizers/punkt/english.pickle')
+#raw_sentences = tokenizer.tokenize(corpus)
 
-def sentence_to_words(s):
-    clean = re.sub("[^a-zA-Z]"," ", s)
-    words = clean.split()
-    words = [w.lower() for w in words]
-    return words
+#def sentence_to_words(s):
+    #clean = re.sub("[^a-zA-Z]"," ", s)
+    #words = clean.split()
+    #words = [w.lower() for w in words]
+    #return words
 
-print("Parsing words from data")
+#print("Parsing words from data")
 
-sentences = []
-for s in raw_sentences:
-	if len(s) > 0:
+#sentences = []
+#for s in raw_sentences:
+	#if len(s) > 0:
 
-		sentence = sentence_to_words(s)
-		sentence.insert(0, "<s>")
-		sentence.append("</s>")
+		#sentence = sentence_to_words(s)
+		#sentence.insert(0, "<s>")
+		#sentence.append("</s>")
 
-		sentences.append(sentence)
+		#sentences.append(sentence)
 
 print("Creating vocabulary")
 
 vocab = {}
-for s in sentences:
-	for w in s:
+for r in reviews:
+	for w in r:
 		if w in vocab:
 			vocab[w] += 1
 		else:
@@ -59,15 +64,19 @@ np.save('5k_vocab_dict.npy', top_5k)
 print("Initializing co dict")
 
 co_dict = {}
-for s in sentences:
-	for i in range(len(s)):
-		currWord = s[i]
+for r in reviews:
+	for i in range(len(r)):
+		currWord = r[i]
+
+		if currWord not in top_5k:
+			continue
 
 		for other_i in range(-5, 6):
-			if (i + other_i) < 0 or (i + other_i) >= len(s) or other_i == 0:
+
+			if ((i + other_i) < 0) or ((i + other_i) >= len(r)) or (other_i == 0) or (r[i + other_i] not in top_5k):
 				continue
 
-			otherWord = s[i + other_i]
+			otherWord = r[i + other_i]
 			dist_weight = 1. / abs(other_i)
 
 			if other_i < 0:
@@ -86,8 +95,7 @@ print("Creating co-occurance matrix")
 
 co_matrix = np.zeros((5000, 5000))
 for word1, word2 in co_dict.keys():
-	if word1 in top_5k and word2 in top_5k:
-		co_matrix[top_5k[word1], top_5k[word2]] = co_dict[(word1, word2)]
+	co_matrix[top_5k[word1], top_5k[word2]] = co_dict[(word1, word2)]
 
 def glove2dict(glove_filename):
     with open(glove_filename) as f:
@@ -100,7 +108,7 @@ print("Training GloVe")
 
 original_embeddings = glove2dict("glove.6B.200d.txt")
 vocab_array = vocab.keys()
-mittens_model = Mittens(n=200, max_iter=5000)
+mittens_model = Mittens(n=200, max_iter=2000)
 new_embeddings = mittens_model.fit(co_matrix, vocab = top_5k.keys(), initial_embedding_dict = original_embeddings)
 
 np.save('GloVe_wine_5k.npy', new_embeddings) 
