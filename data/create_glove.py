@@ -21,27 +21,6 @@ for d in descriptions:
 	words.insert(0, "<s>")
 	reviews.append(words)
 
-#tokenizer = nltk.data.load('tokenizers/punkt/english.pickle')
-#raw_sentences = tokenizer.tokenize(corpus)
-
-#def sentence_to_words(s):
-    #clean = re.sub("[^a-zA-Z]"," ", s)
-    #words = clean.split()
-    #words = [w.lower() for w in words]
-    #return words
-
-#print("Parsing words from data")
-
-#sentences = []
-#for s in raw_sentences:
-	#if len(s) > 0:
-
-		#sentence = sentence_to_words(s)
-		#sentence.insert(0, "<s>")
-		#sentence.append("</s>")
-
-		#sentences.append(sentence)
-
 print("Creating vocabulary")
 
 vocab = {}
