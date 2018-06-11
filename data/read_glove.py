@@ -18,7 +18,7 @@ dists = np.sum(np.square(embeddings - encoding), axis=1)
 
 most_related = np.argpartition(dists, 10)[:10]
 
-print("Original word: firm")
+print("Original word: margaux")
 for val in most_related:
 	if val == idx: continue
 	print("Related word: ", inv_vocab[val])
