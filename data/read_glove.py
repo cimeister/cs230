@@ -11,7 +11,7 @@ embeddings = np.load('GloVe_wine_5k.npy')
 vocab = np.load("5k_vocab_dict.npy").item()
 inv_vocab = {v: k for k, v in vocab.items()}
 
-idx = vocab['firm']
+idx = vocab['fruit']
 encoding = embeddings[idx,:]
 
 dists = np.sum(np.square(embeddings - encoding), axis=1)
